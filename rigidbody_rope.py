@@ -34,17 +34,11 @@ def clear_scene():
 
 def make_capsule_rope(params):
     '''Make a rigid rope composed of capsules linked by rigid body constraints'''
-    radius = params["segment_radius"]
+    radius = params["segment_sep"]
     rope_length = radius * params["num_segments"]
     num_segments = int(rope_length / radius)
-    separation = radius*1.1 # HACKY - artificially increase the separation to avoid link-to-link collision
     link_mass = params["segment_mass"] # TODO: this may need to be scaled
     link_friction = params["segment_friction"]
-    twist_stiffness = 20
-    twist_damping = 10
-    bend_stiffness = 0
-    bend_damping = 5
-    num_joints = int(radius/separation)*2+1
     bpy.ops.import_mesh.stl(filepath="data/capsule_12_8_1_2.stl")
     loc0 = (radius*num_segments,0,0)
     link0 = bpy.context.object
@@ -58,6 +52,10 @@ def make_capsule_rope(params):
     link0.rigid_body.friction = link_friction
     link0.rigid_body.linear_damping = params["linear_damping"]
     link0.rigid_body.angular_damping = params["angular_damping"] # NOTE: this makes the rope a lot less wiggly
+    # change color to white
+    mat = bpy.data.materials.new(name="White")
+    mat.diffuse_color = (1,1,1, 1.0)
+    link0.active_material = mat
     # These are simulation parameters that seemed to work well for simulation speed & collision handling
     bpy.context.scene.rigidbody_world.steps_per_second = 120
     bpy.context.scene.rigidbody_world.solver_iterations = 20
@@ -125,10 +123,11 @@ def rig_rope(params, mode):
     arm = bpy.context.object
     n = params["num_segments"]
     radius = params["segment_radius"]
+    spacing = params["segment_sep"]
     for i in range(n):
         loc = 2*radius*((n-i) - n//2)
         createNewBone(arm, "Bone.%03d"%i, (loc,0,0), (loc,0,1))
-    bpy.ops.curve.primitive_bezier_curve_add(location=(radius,0,0))
+    bpy.ops.curve.primitive_bezier_curve_add(location=(spacing,0,0))
     bezier_scale = n*radius
     bpy.ops.transform.resize(value=(bezier_scale, bezier_scale, bezier_scale))
     bezier = bpy.context.active_object
@@ -136,7 +135,7 @@ def rig_rope(params, mode):
     bpy.ops.curve.select_all(action='SELECT')
     bpy.ops.curve.handle_type_set(type='VECTOR')
     bpy.ops.curve.handle_type_set(type='AUTOMATIC')
-    num_control_points = 40 # Tune this
+    num_control_points = 10 # Tune this
     bpy.ops.curve.subdivide(number_cuts=num_control_points-2)
     bpy.ops.object.mode_set(mode='OBJECT')
     bezier_points = bezier.data.splines[0].bezier_points
@@ -164,7 +163,7 @@ def rig_rope(params, mode):
 
 def add_camera_light():
     bpy.ops.object.light_add(type='SUN', radius=1, location=(0,0,0))
-    bpy.ops.object.camera_add(location=(2,0,28), rotation=(0,0,0))
+    bpy.ops.object.camera_add(location=(10,0,50), rotation=(0,0,0))
     bpy.context.scene.camera = bpy.context.object
 
 def make_table(params):
@@ -173,6 +172,15 @@ def make_table(params):
     table = bpy.context.object
     table.rigid_body.type = 'PASSIVE'
     table.rigid_body.friction = 0.8
+
+    # give table a new active material
+    mat = bpy.data.materials.new(name='TableMaterial')  # Create a material.
+    mat.metallic = 0.0
+    mat.roughness = 0.5
+    # set material to matte black
+    mat.diffuse_color = (0, 0, 0, 1.0)
+    table.data.materials.append(mat)  # Assign the material to the object.
+
     bpy.ops.object.select_all(action='DESELECT')
 
 if __name__ == '__main__':
