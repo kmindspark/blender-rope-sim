@@ -34,7 +34,7 @@ def clear_scene():
 
 def make_capsule_rope(params):
     '''Make a rigid rope composed of capsules linked by rigid body constraints'''
-    radius = params["segment_sep"]
+    radius = params["segment_radius"]
     rope_length = radius * params["num_segments"]
     num_segments = int(rope_length / radius)
     link_mass = params["segment_mass"] # TODO: this may need to be scaled
@@ -54,7 +54,7 @@ def make_capsule_rope(params):
     link0.rigid_body.angular_damping = params["angular_damping"] # NOTE: this makes the rope a lot less wiggly
     # change color to white
     mat = bpy.data.materials.new(name="White")
-    mat.diffuse_color = (1,1,1, 1.0)
+    mat.diffuse_color = (255,255,255, 1.0)
     link0.active_material = mat
     # These are simulation parameters that seemed to work well for simulation speed & collision handling
     bpy.context.scene.rigidbody_world.steps_per_second = 120
@@ -112,8 +112,13 @@ def make_braid_rig(params, bezier):
 def make_cable_rig(params, bezier):
     '''Cable armature'''
     bpy.ops.object.modifier_add(type='CURVE')
-    bpy.ops.curve.primitive_bezier_circle_add(radius=0.02)
+    bpy.ops.curve.primitive_bezier_circle_add(radius=0.0125)
     bezier.data.bevel_object = bpy.data.objects["BezierCircle"]
+    mat = bpy.data.materials.new(name="White")
+    mat.metallic = 0.0
+    mat.roughness = 0.5
+    mat.diffuse_color = (2.5,2.5,2.5, 1.0)
+    bezier.active_material = mat
     bpy.context.view_layer.objects.active = bezier
     return bezier
 
@@ -123,11 +128,11 @@ def rig_rope(params, mode):
     arm = bpy.context.object
     n = params["num_segments"]
     radius = params["segment_radius"]
-    spacing = params["segment_sep"]
+    # spacing = params["segment_sep"]
     for i in range(n):
         loc = 2*radius*((n-i) - n//2)
         createNewBone(arm, "Bone.%03d"%i, (loc,0,0), (loc,0,1))
-    bpy.ops.curve.primitive_bezier_curve_add(location=(spacing,0,0))
+    bpy.ops.curve.primitive_bezier_curve_add(location=(radius,0,0))
     bezier_scale = n*radius
     bpy.ops.transform.resize(value=(bezier_scale, bezier_scale, bezier_scale))
     bezier = bpy.context.active_object
