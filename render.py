@@ -11,6 +11,9 @@ from sklearn.neighbors import NearestNeighbors
 import knots
 from dr_utils import *
 
+with open("rigidbody_params.json", "r") as f:
+    params = json.load(f)
+
 global rig 
 
 def set_animation_settings(anim_end):
@@ -61,12 +64,12 @@ def annotate(frame, mapping, num_annotations, knot_only=True, end_only=False, of
     pixels = []
     if knot_only:
         annot_list = []
-        pull, hold, _ = find_knot(50)
+        pull, hold, _ = find_knot(params["num_segments"])
         indices = list(range(pull-offset, pull+offset+1)) + list(range(hold-offset, hold+offset+1))
     elif end_only:
-        indices = list(range(4)) + list(range(46,50))
+        indices = list(range(4)) + list(range(params["num_segments"] - 4, params["num_segments"]))
     else:
-        indices = list(range(50))
+        indices = list(range(params["num_segments"]))
     for i in indices:
         cyl = get_piece("Cylinder", i if i != 0 else -1)
         cyl_verts = list(cyl.data.vertices)
@@ -200,7 +203,7 @@ def render_mask(mask_filename, depth_filename, index):
 def take_undo_action_oracle(params, start_frame, render=False, render_offset=0, annot=True, mapping=None):
     # Takes an action to loosen the knot using ground truth info
     piece = "Cylinder"
-    pull_idx, hold_idx, action_vec = find_knot(50)
+    pull_idx, hold_idx, action_vec = find_knot(params["num_segments"])
     action_vec = np.array(action_vec) + np.random.uniform(-0.5, 0.5, 3)
     action_vec /= np.linalg.norm(action_vec)
     action_vec *= 2

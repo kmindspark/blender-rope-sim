@@ -114,15 +114,11 @@ def make_cable_rig(params, bezier):
     bpy.ops.object.modifier_add(type='CURVE')
     bpy.ops.curve.primitive_bezier_circle_add(radius=0.0085)
     bezier.data.bevel_object = bpy.data.objects["BezierCircle"]
-    # mat = bpy.data.materials.new(name="White")
-    # mat.metallic = 0.0
-    # mat.roughness = 0.5
-    # mat.diffuse_color = (2.5,2.5,2.5, 1.0)
-    # bezier.active_material = mat
     bpy.context.view_layer.objects.active = bezier
     return bezier
 
 def rig_rope(params, mode):
+    # TODO: look into creating a bezier curve and making rope follow that...
     '''Adds rig (either braid or cable), hides capsules'''
     bpy.ops.object.armature_add(enter_editmode=False, location=(0, 0, 0))
     arm = bpy.context.object
