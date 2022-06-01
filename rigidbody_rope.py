@@ -112,13 +112,13 @@ def make_braid_rig(params, bezier):
 def make_cable_rig(params, bezier):
     '''Cable armature'''
     bpy.ops.object.modifier_add(type='CURVE')
-    bpy.ops.curve.primitive_bezier_circle_add(radius=0.0125)
+    bpy.ops.curve.primitive_bezier_circle_add(radius=0.0085)
     bezier.data.bevel_object = bpy.data.objects["BezierCircle"]
-    mat = bpy.data.materials.new(name="White")
-    mat.metallic = 0.0
-    mat.roughness = 0.5
-    mat.diffuse_color = (2.5,2.5,2.5, 1.0)
-    bezier.active_material = mat
+    # mat = bpy.data.materials.new(name="White")
+    # mat.metallic = 0.0
+    # mat.roughness = 0.5
+    # mat.diffuse_color = (2.5,2.5,2.5, 1.0)
+    # bezier.active_material = mat
     bpy.context.view_layer.objects.active = bezier
     return bezier
 
@@ -140,7 +140,7 @@ def rig_rope(params, mode):
     bpy.ops.curve.select_all(action='SELECT')
     bpy.ops.curve.handle_type_set(type='VECTOR')
     bpy.ops.curve.handle_type_set(type='AUTOMATIC')
-    num_control_points = 10 # Tune this
+    num_control_points = 20 # Tune this
     bpy.ops.curve.subdivide(number_cuts=num_control_points-2)
     bpy.ops.object.mode_set(mode='OBJECT')
     bezier_points = bezier.data.splines[0].bezier_points
@@ -165,6 +165,8 @@ def rig_rope(params, mode):
         rope = make_braid_rig(params, bezier)
     else:
         rope = make_cable_rig(params, bezier)
+
+    return rope
 
 def add_camera_light():
     bpy.ops.object.light_add(type='SUN', radius=1, location=(0,0,0))

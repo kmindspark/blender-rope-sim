@@ -9,6 +9,9 @@ sys.path.append(os.getcwd())
 from rigidbody_rope import *
 from sklearn.neighbors import NearestNeighbors
 import knots
+from dr_utils import *
+
+global rig 
 
 def set_animation_settings(anim_end):
     # Sets up the animation cache to run till frame anim_end (otherwise default terminates @ 250)
@@ -145,6 +148,10 @@ def render_frame(frame, render_offset=0, step=2, num_annotations=300, filename="
     # Renders a single frame in a sequence (if frame%step == 0)
     frame -= render_offset
     randomize_camera()
+
+    color = (2.25, 2.25, 2.25) #(np.random.uniform(1.0,1.0),np.random.uniform(1.0,1.0),np.random.uniform(1.0,1.0))
+    color_randomize(rig, color=color)
+
     if frame%step == 0:
         scene = bpy.context.scene
 
@@ -289,8 +296,9 @@ if __name__ == '__main__':
     with open("rigidbody_params.json", "r") as f:
         params = json.load(f)
     clear_scene()
+    print("here")
     make_capsule_rope(params)
-    rig_rope(params, 'cable')
+    rig = rig_rope(params, 'cable')
     add_camera_light()
     set_render_settings(params["engine"],(params["render_width"],params["render_height"]))
     make_table(params)

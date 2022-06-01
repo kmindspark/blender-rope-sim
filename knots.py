@@ -68,15 +68,15 @@ def tie_pretzel_knot(params, chain=False, render=False):
     take_action(end1, 230, (8,0,5))
     take_action(end2, 230, (-6,0,0))
 
-    take_action(end1, 260, (-1,0,-1))
-    take_action(end2, 260, (1,0,-1))
-    toggle_animation(end1, 280, False)
-    toggle_animation(end2, 280, False)
+    take_action(end1, 280, (-0.8,0,-0.8))
+    take_action(end2, 280, (0.8,0,-0.8))
+    toggle_animation(end1, 300, False)
+    toggle_animation(end2, 300, False)
 
     ## Reidemeister
     for step in range(1, 350):
         bpy.context.scene.frame_set(step)
-        #if render:
+        # if render:
         #    render_frame(step, render_offset=render_offset)
     return 350
 
@@ -270,9 +270,9 @@ if __name__ == '__main__':
     add_camera_light()
     set_animation_settings(600)
     make_table(params)
-    tie_figure_eight(params, render=True)
+    # tie_figure_eight(params, render=True)
     #start = time.time()
-    #tie_pretzel_knot(params, render=True)
+    tie_pretzel_knot(params, render=True)
     #end = time.time()
     #print(end-start)
     #tie_stevedore(params, render=True)
